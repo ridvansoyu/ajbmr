@@ -1,13 +1,14 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import dj_database_url
 
 # Point BASE_DIR to the 'backend' folder
 BASE_DIR = Path(__file__).resolve().parents[2]
 
 load_dotenv(dotenv_path=Path(__file__).resolve().parents[2] / '.env', override=True)
 
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'change-me')
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', '$y5ib+k(a@4_dvb)u!fq&$xf9^9b%=42(&klab!hn6t2hc+65x')
 DEBUG = False
 
 ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
@@ -70,17 +71,29 @@ TEMPLATES = [
 WSGI_APPLICATION = 'core.settings.wsgi.application'
 ASGI_APPLICATION = 'core.settings.asgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB', 'ajbmrdb'),
-        'USER': os.getenv('POSTGRES_USER', 'journal_admin'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'Journal!2025'),
-        'HOST': os.getenv('POSTGRES_HOST', '127.0.0.1'),
-        'PORT': os.getenv('POSTGRES_PORT', '5432'),
-        'CONN_MAX_AGE': 60,
+# Database configuration - supports both DATABASE_URL and individual env vars
+DATABASE_URL = os.getenv('DATABASE_URL')
+if DATABASE_URL:
+    # Use DATABASE_URL if provided (common in production)
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=60
+        )
     }
-}
+else:
+    # Use individual environment variables (common in development)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv('POSTGRES_DB', 'ajbmrdb'),
+            'USER': os.getenv('POSTGRES_USER', 'journal_admin'),
+            'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'Journal!2025'),
+            'HOST': os.getenv('POSTGRES_HOST', '127.0.0.1'),
+            'PORT': os.getenv('POSTGRES_PORT', '5432'),
+            'CONN_MAX_AGE': 60,
+        }
+    }
 
 AUTH_USER_MODEL = 'users.User'
 
