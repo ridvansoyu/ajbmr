@@ -29,6 +29,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
-    ...
 ]
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
