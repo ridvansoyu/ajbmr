@@ -1,0 +1,43 @@
+# Global
+.DS_Store
+*.log
+*.sw?
+
+# Node/Frontend
+node_modules/
+.next/
+dist/
+build/
+
+# Python/Django
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pytest_cache/
+migrations/__pycache__/
+
+# Envs (root + nested)
+.env
+.env.*
+frontend/.env.local
+backend/.env
+
+# Uploads and static
+backend/uploads/
+backend/staticfiles/
+
+# Editors
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Docker artifacts
+*.pid
+*.seed
+postgres_data/
+redis_data/
