@@ -27,7 +27,14 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # Configure middleware
 MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
+    'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',   # required
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware', # required
+    'django.contrib.messages.middleware.MessageMiddleware',       # required
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
