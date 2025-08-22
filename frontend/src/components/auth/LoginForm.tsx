@@ -22,27 +22,55 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    
+    console.log('🔐 Login attempt started');
+    console.log('📡 API URL:', API);
+    console.log('📧 Email:', formData.email);
+    
     try {
+      console.log('🔄 Making token request...');
       const resp = await fetch(`${API}/api/users/token/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: formData.email, password: formData.password }),
       });
-      if (!resp.ok) throw new Error(language === 'en' ? 'Invalid credentials' : 'Geçersiz kimlik bilgileri');
+      
+      console.log('📊 Token response status:', resp.status);
+      
+      if (!resp.ok) {
+        const errorText = await resp.text();
+        console.error('❌ Token request failed:', errorText);
+        throw new Error(language === 'en' ? 'Invalid credentials' : 'Geçersiz kimlik bilgileri');
+      }
+      
       const { access, refresh } = await resp.json();
+      console.log('✅ Token received:', { hasAccess: !!access, hasRefresh: !!refresh });
+      
       // Fetch display name via profile endpoint
-      const me = await fetch(`${API}/api/users/profile/`, { headers: { Authorization: `Bearer ${access}` } });
+      console.log('🔄 Fetching profile data...');
+      const me = await fetch(`${API}/api/users/profile/`, { 
+        headers: { Authorization: `Bearer ${access}` } 
+      });
+      
       let displayName: string | undefined;
       if (me.ok) {
         const j = await me.json();
         const fn = (j.first_name || '').trim();
         const ln = (j.last_name || '').trim();
         displayName = `${fn} ${ln}`.trim();
+        console.log('✅ Profile data received:', { fn, ln, displayName });
+      } else {
+        console.warn('⚠️ Profile request failed:', me.status);
       }
+      
+      console.log('�� Calling loginWithJwt...');
       loginWithJwt(formData.email, access, displayName, refresh);
+      
+      console.log('✅ Login successful, redirecting...');
       if (onClose) onClose();
       router.push('/dashboard');
     } catch (err: any) {
+      console.error('❌ Login error:', err);
       setError(err.message || (language === 'en' ? 'Login failed' : 'Giriş başarısız'));
     }
   };
@@ -112,5 +140,3 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose }) => {
 };
 
 export default LoginForm;
-
-

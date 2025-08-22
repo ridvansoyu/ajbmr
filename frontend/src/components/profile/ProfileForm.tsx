@@ -19,9 +19,10 @@ type ProfileData = {
 
 const ProfileForm: React.FC = () => {
 	const { language } = useLanguage();
-	const { user } = useAuth();
+	const { user, isAuthenticated, isReady, accessToken } = useAuth();
 	const [saved, setSaved] = useState('');
 	const [error, setError] = useState('');
+	const [loading, setLoading] = useState(true);
 	const [data, setData] = useState<ProfileData>({
 		firstName: '',
 		lastName: '',
@@ -36,16 +37,32 @@ const ProfileForm: React.FC = () => {
 	});
 
 	const API = process.env.NEXT_PUBLIC_API_BASE_URL || '';
-	const access = typeof window !== 'undefined' ? window.localStorage.getItem('auth:access') : null;
 
 	useEffect(() => {
+		// Only fetch profile data when auth is ready and user is authenticated
+		if (!isReady) {
+			console.log('⏳ Auth not ready yet');
+			return;
+		}
+		
+		if (!isAuthenticated || !accessToken) {
+			console.log('❌ Not authenticated or no access token:', { isAuthenticated, hasToken: !!accessToken });
+			setLoading(false);
+			return;
+		}
+
+		console.log('🔄 Fetching profile data...');
 		(async () => {
 			try {
+				setLoading(true);
 				const r = await fetch(`${API}/api/users/profile/`, {
-					headers: access ? { Authorization: `Bearer ${access}` } : {},
+					headers: { Authorization: `Bearer ${accessToken}` },
 				});
+				console.log('📊 Profile response status:', r.status);
+				
 				if (r.ok) {
 					const j = await r.json();
+					console.log('✅ Profile data received:', j);
 					setData((prev) => ({
 						...prev,
 						email: user?.email || prev.email,
@@ -59,11 +76,16 @@ const ProfileForm: React.FC = () => {
 						biography: j.bio || '',
 						title: j.title || '',
 					}));
+				} else {
+					console.error('❌ Failed to fetch profile:', r.status, r.statusText);
 				}
-			} catch {}
+			} catch (err) {
+				console.error('❌ Error fetching profile:', err);
+			} finally {
+				setLoading(false);
+			}
 		})();
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, [isReady, isAuthenticated, accessToken, user?.email, user?.username, API]);
 
 	const onChange = (field: keyof ProfileData) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
 		setData((prev) => ({ ...prev, [field]: e.target.value }));
@@ -73,12 +95,18 @@ const ProfileForm: React.FC = () => {
 		e.preventDefault();
 		setError('');
 		setSaved('');
+		
+		if (!isAuthenticated || !accessToken) {
+			setError(language === 'en' ? 'You must be logged in to save your profile.' : 'Profilinizi kaydetmek için giriş yapmalısınız.');
+			return;
+		}
+
 		try {
 			const r = await fetch(`${API}/api/users/profile/`, {
 				method: 'PUT',
 				headers: {
 					'Content-Type': 'application/json',
-					...(access ? { Authorization: `Bearer ${access}` } : {}),
+					Authorization: `Bearer ${accessToken}`,
 				},
 				body: JSON.stringify({
 					first_name: data.firstName,
@@ -98,6 +126,35 @@ const ProfileForm: React.FC = () => {
 			setError(language === 'en' ? 'Failed to save profile.' : 'Profil kaydedilemedi.');
 		}
 	};
+
+	// Show loading state while auth is being determined
+	if (!isReady || loading) {
+		return (
+			<div className="flex items-center justify-center py-8">
+				<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+				<span className="ml-2 text-gray-600">
+					{language === 'en' ? 'Loading profile...' : 'Profil yükleniyor...'}
+				</span>
+			</div>
+		);
+	}
+
+	// Show message if not authenticated
+	if (!isAuthenticated) {
+		return (
+			<div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
+				<AlertCircle className="h-12 w-12 text-yellow-600 mx-auto mb-4" />
+				<h3 className="text-lg font-medium text-yellow-800 mb-2">
+					{language === 'en' ? 'Authentication Required' : 'Kimlik Doğrulama Gerekli'}
+				</h3>
+				<p className="text-yellow-700">
+					{language === 'en' 
+						? 'You must be logged in to view and edit your profile.' 
+						: 'Profilinizi görüntülemek ve düzenlemek için giriş yapmalısınız.'}
+				</p>
+			</div>
+		);
+	}
 
 	return (
 		<form onSubmit={onSubmit} className="space-y-6">
@@ -242,5 +299,3 @@ const ProfileForm: React.FC = () => {
 };
 
 export default ProfileForm;
-
-

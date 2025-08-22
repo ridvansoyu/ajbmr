@@ -4,6 +4,7 @@ import { LanguageProvider } from '@/context/LanguageContext';
 import { AuthProvider } from '@/context/AuthContext';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import AuthDebug from '@/components/debug/AuthDebug';
 import React from 'react';
 
 export const metadata: Metadata = {
@@ -24,6 +25,7 @@ export default function RootLayout({
             <Header />
             {children}
             <Footer />
+            <AuthDebug />
           </AuthProvider>
         </LanguageProvider>
       </body>

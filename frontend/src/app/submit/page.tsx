@@ -3,12 +3,38 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
+import { useAuth } from '@/context/AuthContext';
 import LoginForm from '@/components/auth/LoginForm';
 import { Upload, CheckCircle, User, BookOpen, Lock, FileText, HelpCircle } from 'lucide-react';
 
 export default function SubmitPage() {
   const { t, language } = useLanguage();
+  const { isAuthenticated, isReady, user } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
+
+  // Show loading state while auth is being determined
+  if (!isReady) {
+    return (
+      <div className="bg-white pb-16">
+        <div className="bg-primary-900 text-white py-12 md:py-16">
+          <div className="container-custom">
+            <h1 className="text-3xl md:text-5xl font-serif font-medium text-white mb-6">{t('submit.title')}</h1>
+            <p className="text-xl text-gray-200 max-w-3xl">
+              {language === 'en'
+                ? 'Submit your manuscript for consideration in our peer-reviewed journal. Please read our guidelines before submitting.'
+                : 'Makalenizi hakemli dergimizde değerlendirilmek üzere gönderin. Lütfen göndermeden önce kurallarımızı okuyun.'}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center justify-center py-16">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+          <span className="ml-2 text-gray-600">
+            {language === 'en' ? 'Loading...' : 'Yükleniyor...'}
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white pb-16">
@@ -41,17 +67,35 @@ export default function SubmitPage() {
               <div className="space-y-12">
                 <div className="relative flex flex-col md:flex-row">
                   <div className="md:w-32 flex items-center justify-center">
-                    <div className="w-16 h-16 bg-primary-600 rounded-full flex items-center justify-center text-white relative z-10">
-                      <User className="h-8 w-8" />
+                    <div className={`w-16 h-16 rounded-full flex items-center justify-center text-white relative z-10 ${
+                      isAuthenticated ? 'bg-green-600' : 'bg-primary-600'
+                    }`}>
+                      {isAuthenticated ? <CheckCircle className="h-8 w-8" /> : <User className="h-8 w-8" />}
                     </div>
                   </div>
                   <div className="pt-4 md:pt-0 md:ml-8 flex-1">
-                    <h3 className="text-xl font-medium mb-4">{language === 'en' ? 'Register or Log In' : 'Kayıt Olun veya Giriş Yapın'}</h3>
-                    <p className="text-gray-700 mb-6">{language === 'en' ? 'You need to have an account in our system to submit a manuscript...' : 'Makale göndermek için sistemimizde bir hesabınızın olması gerekir...'}</p>
-                    <div className="flex flex-wrap gap-4">
-                      <button onClick={() => setShowLogin(true)} className="btn btn-primary">{t('submit.login')}</button>
-                      <Link href="/register" className="btn btn-outline">{t('submit.register')}</Link>
-                    </div>
+                    <h3 className="text-xl font-medium mb-4">
+                      {isAuthenticated 
+                        ? (language === 'en' ? 'Authentication Complete' : 'Kimlik Doğrulama Tamamlandı')
+                        : (language === 'en' ? 'Register or Log In' : 'Kayıt Olun veya Giriş Yapın')
+                      }
+                    </h3>
+                    <p className="text-gray-700 mb-6">
+                      {isAuthenticated 
+                        ? (language === 'en' 
+                            ? `Welcome back, ${user?.username || user?.email}! You are now ready to submit your manuscript.`
+                            : `Tekrar hoş geldiniz, ${user?.username || user?.email}! Artık makalenizi göndermeye hazırsınız.`)
+                        : (language === 'en' 
+                            ? 'You need to have an account in our system to submit a manuscript...'
+                            : 'Makale göndermek için sistemimizde bir hesabınızın olması gerekir...')
+                      }
+                    </p>
+                    {!isAuthenticated && (
+                      <div className="flex flex-wrap gap-4">
+                        <button onClick={() => setShowLogin(true)} className="btn btn-primary">{t('submit.login')}</button>
+                        <Link href="/register" className="btn btn-outline">{t('submit.register')}</Link>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -89,33 +133,51 @@ export default function SubmitPage() {
 
                 <div className="relative flex flex-col md:flex-row">
                   <div className="md:w-32 flex items-center justify-center">
-                    <div className="w-16 h-16 bg-primary-600 rounded-full flex items-center justify-center text-white relative z-10">
+                    <div className={`w-16 h-16 rounded-full flex items-center justify-center text-white relative z-10 ${
+                      isAuthenticated ? 'bg-primary-600' : 'bg-gray-400'
+                    }`}>
                       <Upload className="h-8 w-8" />
                     </div>
                   </div>
                   <div className="pt-4 md:pt-0 md:ml-8 flex-1">
                     <h3 className="text-xl font-medium mb-4">{language === 'en' ? 'Upload Your Manuscript' : 'Makalenizi Yükleyin'}</h3>
                     <p className="text-gray-700 mb-6">{language === 'en' ? 'Follow the system prompts to upload your manuscript...' : 'Makalenizi ve tüm ek dosyaları yüklemek için...'}</p>
-                    <button onClick={() => setShowLogin(true)} className="btn btn-primary inline-flex items-center">
-                      <Upload className="h-4 w-4 mr-2" />
-                      <span>{language === 'en' ? 'Start Submission' : 'Gönderime Başla'}</span>
-                    </button>
+                    {isAuthenticated ? (
+                      <button className="btn btn-primary inline-flex items-center">
+                        <Upload className="h-4 w-4 mr-2" />
+                        <span>{language === 'en' ? 'Start Submission' : 'Gönderime Başla'}</span>
+                      </button>
+                    ) : (
+                      <button onClick={() => setShowLogin(true)} className="btn btn-primary inline-flex items-center">
+                        <Upload className="h-4 w-4 mr-2" />
+                        <span>{language === 'en' ? 'Login to Submit' : 'Göndermek İçin Giriş Yapın'}</span>
+                      </button>
+                    )}
                   </div>
                 </div>
 
                 <div className="relative flex flex-col md:flex-row">
                   <div className="md:w-32 flex items-center justify-center">
-                    <div className="w-16 h-16 bg-primary-600 rounded-full flex items-center justify-center text-white relative z-10">
+                    <div className={`w-16 h-16 rounded-full flex items-center justify-center text-white relative z-10 ${
+                      isAuthenticated ? 'bg-primary-600' : 'bg-gray-400'
+                    }`}>
                       <Lock className="h-8 w-8" />
                     </div>
                   </div>
                   <div className="pt-4 md:pt-0 md:ml-8 flex-1">
                     <h3 className="text-xl font-medium mb-4">{language === 'en' ? 'Track Your Submission' : 'Gönderiminizi Takip Edin'}</h3>
                     <p className="text-gray-700 mb-6">{language === 'en' ? 'After submission, you can track the status...' : 'Gönderimden sonra, yazar hesabınız aracılığıyla...'}</p>
-                    <button onClick={() => setShowLogin(true)} className="btn btn-outline inline-flex items-center">
-                      <Lock className="h-4 w-4 mr-2" />
-                      <span>{language === 'en' ? 'Check Submission Status' : 'Gönderim Durumunu Kontrol Et'}</span>
-                    </button>
+                    {isAuthenticated ? (
+                      <Link href="/dashboard/publications" className="btn btn-outline inline-flex items-center">
+                        <Lock className="h-4 w-4 mr-2" />
+                        <span>{language === 'en' ? 'Check Submission Status' : 'Gönderim Durumunu Kontrol Et'}</span>
+                      </Link>
+                    ) : (
+                      <button onClick={() => setShowLogin(true)} className="btn btn-outline inline-flex items-center">
+                        <Lock className="h-4 w-4 mr-2" />
+                        <span>{language === 'en' ? 'Login to Track' : 'Takip Etmek İçin Giriş Yapın'}</span>
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
