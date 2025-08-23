@@ -2,9 +2,11 @@ import '../styles/globals.css';
 import type { Metadata } from 'next';
 import { LanguageProvider } from '@/context/LanguageContext';
 import { AuthProvider } from '@/context/AuthContext';
+import { NotificationProvider } from '@/context/NotificationContext';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import AuthDebug from '@/components/debug/AuthDebug';
+import MaterialUIProvider from '@/components/providers/MaterialUIProvider';
 import React from 'react';
 
 export const metadata: Metadata = {
@@ -20,14 +22,18 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <LanguageProvider>
-          <AuthProvider>
-            <Header />
-            {children}
-            <Footer />
-            <AuthDebug />
-          </AuthProvider>
-        </LanguageProvider>
+        <MaterialUIProvider>
+          <LanguageProvider>
+            <NotificationProvider>
+              <AuthProvider>
+                <Header />
+                {children}
+                <Footer />
+                <AuthDebug />
+              </AuthProvider>
+            </NotificationProvider>
+          </LanguageProvider>
+        </MaterialUIProvider>
       </body>
     </html>
   );

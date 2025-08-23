@@ -2,12 +2,14 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
-import { Mail, Lock, User, Building2, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { useNotification } from '@/context/NotificationContext';
+import { Mail, Lock, User, Building2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
 const RegisterForm: React.FC = () => {
 	const { language } = useLanguage();
 	const { loginWithJwt } = useAuth();
+	const { showSuccess, showError } = useNotification();
 	const router = useRouter();
 	const [formData, setFormData] = useState({
 		firstName: '',
@@ -18,26 +20,22 @@ const RegisterForm: React.FC = () => {
 		affiliation: '',
 		consent: false,
 	});
-	const [error, setError] = useState('');
-	const [success, setSuccess] = useState('');
 
 	const API = process.env.NEXT_PUBLIC_API_BASE_URL || '';
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		setError('');
-		setSuccess('');
 
 		if (formData.password.length < 6) {
-			setError(language === 'en' ? 'Password must be at least 6 characters.' : 'Şifre en az 6 karakter olmalıdır.');
+			showError('FORM.WEAK_PASSWORD');
 			return;
 		}
 		if (formData.password !== formData.confirmPassword) {
-			setError(language === 'en' ? 'Passwords do not match.' : 'Şifreler eşleşmiyor.');
+			showError('FORM.PASSWORD_MISMATCH');
 			return;
 		}
 		if (!formData.consent) {
-			setError(language === 'en' ? 'Please accept the terms to continue.' : 'Devam etmek için şartları kabul edin.');
+			showError('FORM.REQUIRED_FIELDS');
 			return;
 		}
 
@@ -79,26 +77,15 @@ const RegisterForm: React.FC = () => {
 					affiliation: formData.affiliation,
 				}),
 			});
+			showSuccess('AUTH.REGISTER_SUCCESS');
 			router.push('/dashboard');
 		} catch (err: any) {
-			setError(err.message || (language === 'en' ? 'Registration failed.' : 'Kayıt başarısız.'));
+			showError('AUTH.REGISTER_ERROR');
 		}
 	};
 
 	return (
 		<form onSubmit={handleSubmit} className="space-y-4">
-			{error && (
-				<div className="bg-red-50 text-red-600 p-3 rounded-md flex items-center">
-					<AlertCircle className="h-5 w-5 mr-2" />
-					<span>{error}</span>
-				</div>
-			)}
-			{success && (
-				<div className="bg-green-50 text-green-700 p-3 rounded-md flex items-center">
-					<CheckCircle2 className="h-5 w-5 mr-2" />
-					<span>{success}</span>
-				</div>
-			)}
 
 			<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 				<div>

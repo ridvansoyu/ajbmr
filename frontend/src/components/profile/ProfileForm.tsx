@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
+import { useNotification } from '@/context/NotificationContext';
 import { User, Mail, Phone, Building2, CalendarClock, Type, UserCircle2, FileText, PhoneCall, CheckCircle2, AlertCircle } from 'lucide-react';
 
 type ProfileData = {
@@ -20,8 +21,7 @@ type ProfileData = {
 const ProfileForm: React.FC = () => {
 	const { language } = useLanguage();
 	const { user, isAuthenticated, isReady, accessToken } = useAuth();
-	const [saved, setSaved] = useState('');
-	const [error, setError] = useState('');
+	const { showSuccess, showError } = useNotification();
 	const [loading, setLoading] = useState(true);
 	const [data, setData] = useState<ProfileData>({
 		firstName: '',
@@ -78,9 +78,11 @@ const ProfileForm: React.FC = () => {
 					}));
 				} else {
 					console.error('❌ Failed to fetch profile:', r.status, r.statusText);
+					showError('PROFILE.FETCH_ERROR');
 				}
 			} catch (err) {
 				console.error('❌ Error fetching profile:', err);
+				showError('PROFILE.FETCH_ERROR');
 			} finally {
 				setLoading(false);
 			}
@@ -93,11 +95,9 @@ const ProfileForm: React.FC = () => {
 
 	const onSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		setError('');
-		setSaved('');
 		
 		if (!isAuthenticated || !accessToken) {
-			setError(language === 'en' ? 'You must be logged in to save your profile.' : 'Profilinizi kaydetmek için giriş yapmalısınız.');
+			showError('AUTH.UNAUTHORIZED');
 			return;
 		}
 
@@ -121,9 +121,9 @@ const ProfileForm: React.FC = () => {
 				}),
 			});
 			if (!r.ok) throw new Error('Save failed');
-			setSaved(language === 'en' ? 'Profile saved successfully.' : 'Profil başarıyla kaydedildi.');
+			showSuccess('PROFILE.SAVE_SUCCESS');
 		} catch (err) {
-			setError(language === 'en' ? 'Failed to save profile.' : 'Profil kaydedilemedi.');
+			showError('PROFILE.SAVE_ERROR');
 		}
 	};
 
@@ -190,18 +190,7 @@ const ProfileForm: React.FC = () => {
 					</div>
 				);
 			})()}
-			{saved && (
-				<div className="bg-green-50 text-green-700 p-3 rounded-md flex items-center">
-					<CheckCircle2 className="h-5 w-5 mr-2" />
-					<span>{saved}</span>
-				</div>
-			)}
-			{error && (
-				<div className="bg-red-50 text-red-600 p-3 rounded-md flex items-center">
-					<AlertCircle className="h-5 w-5 mr-2" />
-					<span>{error}</span>
-				</div>
-			)}
+
 
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 				<div>

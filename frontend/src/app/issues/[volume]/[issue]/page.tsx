@@ -9,8 +9,8 @@ import { Calendar, BookOpen, Download, ArrowLeft, Users, FileText } from 'lucide
 export default function IssuePage() {
   const params = useParams<{ volume: string; issue: string }>();
   const { t, language } = useLanguage();
-  const volume = Number(params.volume);
-  const issue = Number(params.issue);
+  const volume = Number(params?.volume);
+  const issue = Number(params?.issue);
 
   const currentIssue = dummyIssues.find((i) => i.volume === volume && i.issue === issue);
   if (!currentIssue) {

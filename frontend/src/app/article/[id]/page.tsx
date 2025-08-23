@@ -9,7 +9,7 @@ export default function ArticlePage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const { language } = useLanguage();
-  const id = Number(params.id);
+  const id = Number(params?.id);
   const article = dummyArticles.find((a) => a.id === id);
   if (!article) {
     router.push('/issues');

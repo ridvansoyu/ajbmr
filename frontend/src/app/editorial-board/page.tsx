@@ -117,7 +117,7 @@ export default function EditorialBoardPage() {
                       <img src={member.image} alt={member.name} className="w-full h-full object-cover" />
                     </div>
                     <div>
-                      <h3 className="text-md font-medium text-primary-900">{member.name}</h3>
+                      <h3 className="text-lg font-medium text-primary-900">{member.name}</h3>
                       <p className="text-xs text-gray-600">
                         {(language === 'en' ? member.affiliation.en : member.affiliation.tr).split(',')[0]}
                       </p>
