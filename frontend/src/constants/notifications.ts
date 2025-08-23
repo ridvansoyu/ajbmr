@@ -116,6 +116,22 @@ export const NOTIFICATIONS = {
       en: 'Password is too weak. Please use a stronger password.',
       tr: 'Şifre çok zayıf. Lütfen daha güçlü bir şifre kullanın.'
     }
+  },
+
+  // Submission related notifications
+  SUBMISSION: {
+    SUBMIT_SUCCESS: {
+      en: 'Manuscript submitted successfully!',
+      tr: 'Makale başarıyla gönderildi!'
+    },
+    SUBMIT_ERROR: {
+      en: 'Failed to submit manuscript. Please try again.',
+      tr: 'Makale gönderilemedi. Lütfen tekrar deneyin.'
+    },
+    VALIDATION_ERROR: {
+      en: 'Please complete all required fields before proceeding.',
+      tr: 'Lütfen devam etmeden önce tüm gerekli alanları doldurun.'
+    }
   }
 };
 
@@ -166,4 +182,7 @@ export type NotificationKey =
   | 'FORM.REQUIRED_FIELDS'
   | 'FORM.INVALID_EMAIL'
   | 'FORM.PASSWORD_MISMATCH'
-  | 'FORM.WEAK_PASSWORD';
+  | 'FORM.WEAK_PASSWORD'
+  | 'SUBMISSION.SUBMIT_SUCCESS'
+  | 'SUBMISSION.SUBMIT_ERROR'
+  | 'SUBMISSION.VALIDATION_ERROR';

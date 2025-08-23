@@ -5,12 +5,14 @@ import { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
 import LoginForm from '@/components/auth/LoginForm';
-import { Upload, CheckCircle, User, BookOpen, Lock, FileText, HelpCircle } from 'lucide-react';
+import { Upload, CheckCircle, User, BookOpen, Lock, FileText, HelpCircle, ChevronLeft } from 'lucide-react';
+import SubmissionForm from '@/components/submit/SubmissionForm';
 
 export default function SubmitPage() {
   const { t, language } = useLanguage();
   const { isAuthenticated, isReady, user } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
+  const [showSubmissionForm, setShowSubmissionForm] = useState(false);
 
   // Show loading state while auth is being determined
   if (!isReady) {
@@ -49,55 +51,84 @@ export default function SubmitPage() {
         </div>
       </div>
 
-      <section className="py-12 md:py-16">
-        <div className="container-custom">
-          <div className="mb-12 text-center">
-            <h2 className="text-2xl md:text-3xl font-serif font-medium mb-4">{language === 'en' ? 'Submission Process' : 'Gönderim Süreci'}</h2>
-            <div className="w-24 h-1 bg-primary-600 mx-auto mb-8"></div>
-            <p className="text-gray-700 max-w-3xl mx-auto">
-              {language === 'en'
-                ? 'Our journal uses an online manuscript submission and tracking system through OJS Cloud. Follow these steps to submit your manuscript.'
-                : 'Dergimiz, OJS Cloud aracılığıyla çevrimiçi makale gönderimi ve takip sistemi kullanmaktadır. Makalenizi göndermek için şu adımları izleyin.'}
-            </p>
+      {isAuthenticated && showSubmissionForm ? (
+        // Show the multi-step submission form for logged-in users
+        <section className="py-12 md:py-16">
+          <div className="container-custom">
+            <div className="mb-8 text-center">
+              <div className="flex items-center justify-between mb-6">
+                <button
+                  onClick={() => setShowSubmissionForm(false)}
+                  className="flex items-center text-primary-600 hover:text-primary-700 font-medium"
+                >
+                  <ChevronLeft className="h-4 w-4 mr-2" />
+                  {language === 'en' ? 'Back to Overview' : 'Genel Bakışa Dön'}
+                </button>
+              </div>
+              <h2 className="text-2xl md:text-3xl font-serif font-medium mb-4">
+                {language === 'en' ? 'Submit Your Manuscript' : 'Makalenizi Gönderin'}
+              </h2>
+              <div className="w-24 h-1 bg-primary-600 mx-auto mb-4"></div>
+              <p className="text-gray-700 max-w-3xl mx-auto">
+                {language === 'en'
+                  ? 'Complete the following steps to submit your manuscript for review.'
+                  : 'Makalenizi inceleme için göndermek üzere aşağıdaki adımları tamamlayın.'}
+              </p>
+            </div>
+            <SubmissionForm />
           </div>
+        </section>
+      ) : (
+        // Show the submission process overview for all users
+        <section className="py-12 md:py-16">
+          <div className="container-custom">
+            <div className="mb-12 text-center">
+              <h2 className="text-2xl md:text-3xl font-serif font-medium mb-4">{language === 'en' ? 'Submission Process' : 'Gönderim Süreci'}</h2>
+              <div className="w-24 h-1 bg-primary-600 mx-auto mb-8"></div>
+              <p className="text-gray-700 max-w-3xl mx-auto">
+                {language === 'en'
+                  ? 'Our journal uses an online manuscript submission and tracking system. Follow these steps to submit your manuscript.'
+                  : 'Dergimiz çevrimiçi makale gönderimi ve takip sistemi kullanmaktadır. Makalenizi göndermek için şu adımları izleyin.'}
+              </p>
+            </div>
 
-          <div className="max-w-5xl mx-auto">
-            <div className="relative">
-              <div className="absolute left-16 top-0 h-full w-1 bg-gray-200 hidden md:block"></div>
-              <div className="space-y-12">
-                <div className="relative flex flex-col md:flex-row">
-                  <div className="md:w-32 flex items-center justify-center">
-                    <div className={`w-16 h-16 rounded-full flex items-center justify-center text-white relative z-10 ${
-                      isAuthenticated ? 'bg-green-600' : 'bg-primary-600'
-                    }`}>
-                      {isAuthenticated ? <CheckCircle className="h-8 w-8" /> : <User className="h-8 w-8" />}
+            <div className="max-w-5xl mx-auto">
+              <div className="relative">
+                <div className="absolute left-16 top-0 h-full w-1 bg-gray-200 hidden md:block"></div>
+                <div className="space-y-12">
+                  <div className="relative flex flex-col md:flex-row">
+                    <div className="md:w-32 flex items-center justify-center">
+                      <div className={`w-16 h-16 rounded-full flex items-center justify-center text-white relative z-10 ${
+                        isAuthenticated ? 'bg-green-600' : 'bg-primary-600'
+                      }`}>
+                        {isAuthenticated ? <CheckCircle className="h-8 w-8" /> : <User className="h-8 w-8" />}
+                      </div>
+                    </div>
+                    <div className="pt-4 md:pt-0 md:ml-8 flex-1">
+                      <h3 className="text-xl font-medium mb-4">
+                        {isAuthenticated 
+                          ? (language === 'en' ? 'Authentication Complete' : 'Kimlik Doğrulama Tamamlandı')
+                          : (language === 'en' ? 'Register or Log In' : 'Kayıt Olun veya Giriş Yapın')
+                        }
+                      </h3>
+                      <p className="text-gray-700 mb-6">
+                        {isAuthenticated 
+                          ? (language === 'en' 
+                              ? `Welcome back, ${user?.username || user?.email}! You are now ready to submit your manuscript.`
+                              : `Tekrar hoş geldiniz, ${user?.username || user?.email}! Artık makalenizi göndermeye hazırsınız.`)
+                          : (language === 'en' 
+                              ? 'You need to have an account in our system to submit a manuscript. Create an account or log in to get started.'
+                              : 'Makale göndermek için sistemimizde bir hesabınızın olması gerekir. Başlamak için hesap oluşturun veya giriş yapın.')
+                        }
+                      </p>
+                      {!isAuthenticated && (
+                        <div className="flex flex-wrap gap-4">
+                          <button onClick={() => setShowLogin(true)} className="btn btn-primary">{t('submit.login')}</button>
+                          <Link href="/register" className="btn btn-outline">{t('submit.register')}</Link>
+                        </div>
+                      )}
                     </div>
                   </div>
-                  <div className="pt-4 md:pt-0 md:ml-8 flex-1">
-                    <h3 className="text-xl font-medium mb-4">
-                      {isAuthenticated 
-                        ? (language === 'en' ? 'Authentication Complete' : 'Kimlik Doğrulama Tamamlandı')
-                        : (language === 'en' ? 'Register or Log In' : 'Kayıt Olun veya Giriş Yapın')
-                      }
-                    </h3>
-                    <p className="text-gray-700 mb-6">
-                      {isAuthenticated 
-                        ? (language === 'en' 
-                            ? `Welcome back, ${user?.username || user?.email}! You are now ready to submit your manuscript.`
-                            : `Tekrar hoş geldiniz, ${user?.username || user?.email}! Artık makalenizi göndermeye hazırsınız.`)
-                        : (language === 'en' 
-                            ? 'You need to have an account in our system to submit a manuscript...'
-                            : 'Makale göndermek için sistemimizde bir hesabınızın olması gerekir...')
-                      }
-                    </p>
-                    {!isAuthenticated && (
-                      <div className="flex flex-wrap gap-4">
-                        <button onClick={() => setShowLogin(true)} className="btn btn-primary">{t('submit.login')}</button>
-                        <Link href="/register" className="btn btn-outline">{t('submit.register')}</Link>
-                      </div>
-                    )}
-                  </div>
-                </div>
 
                 <div className="relative flex flex-col md:flex-row">
                   <div className="md:w-32 flex items-center justify-center">
@@ -143,7 +174,10 @@ export default function SubmitPage() {
                     <h3 className="text-xl font-medium mb-4">{language === 'en' ? 'Upload Your Manuscript' : 'Makalenizi Yükleyin'}</h3>
                     <p className="text-gray-700 mb-6">{language === 'en' ? 'Follow the system prompts to upload your manuscript...' : 'Makalenizi ve tüm ek dosyaları yüklemek için...'}</p>
                     {isAuthenticated ? (
-                      <button className="btn btn-primary inline-flex items-center">
+                      <button 
+                        onClick={() => setShowSubmissionForm(true)} 
+                        className="btn btn-primary inline-flex items-center"
+                      >
                         <Upload className="h-4 w-4 mr-2" />
                         <span>{language === 'en' ? 'Start Submission' : 'Gönderime Başla'}</span>
                       </button>
@@ -185,6 +219,7 @@ export default function SubmitPage() {
           </div>
         </div>
       </section>
+      )}
 
 		<section className="py-12 md:py-16 bg-gray-50">
 			<div className="container-custom">
@@ -286,6 +321,29 @@ export default function SubmitPage() {
               {language === 'en'
                 ? 'By logging in, you agree to our Terms of Service and Privacy Policy.'
                 : 'Giriş yaparak Hizmet Şartlarımızı ve Gizlilik Politikamızı kabul etmiş olursunuz.'}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showSubmissionForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setShowSubmissionForm(false)} />
+          <div className="relative bg-white w-full max-w-6xl mx-auto rounded-lg shadow-xl border border-gray-200 max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
+              <h3 className="text-xl font-medium">
+                {language === 'en' ? 'Submit Manuscript' : 'Makale Gönder'}
+              </h3>
+              <button
+                aria-label="Close"
+                onClick={() => setShowSubmissionForm(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-6">
+              <SubmissionForm />
             </div>
           </div>
         </div>
