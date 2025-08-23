@@ -51,6 +51,26 @@ export const NOTIFICATIONS = {
     SAVE_ERROR: {
       en: 'Failed to save profile.',
       tr: 'Profil kaydedilemedi.'
+    },
+    EMAIL_PREFERENCES_UPDATED: {
+      en: 'Email preferences updated successfully!',
+      tr: 'E-posta tercihleri başarıyla güncellendi!'
+    },
+    PASSWORD_UPDATED: {
+      en: 'Password updated successfully!',
+      tr: 'Şifre başarıyla güncellendi!'
+    },
+    PASSWORD_UPDATE_ERROR: {
+      en: 'Failed to update password. Please try again.',
+      tr: 'Şifre güncellenemedi. Lütfen tekrar deneyin.'
+    },
+    EMAIL_UPDATED: {
+      en: 'Email address updated successfully!',
+      tr: 'E-posta adresi başarıyla güncellendi!'
+    },
+    EMAIL_UPDATE_ERROR: {
+      en: 'Failed to update email address. Please try again.',
+      tr: 'E-posta adresi güncellenemedi. Lütfen tekrar deneyin.'
     }
   },
 
@@ -170,6 +190,11 @@ export type NotificationKey =
   | 'PROFILE.FETCH_ERROR'
   | 'PROFILE.SAVE_SUCCESS'
   | 'PROFILE.SAVE_ERROR'
+  | 'PROFILE.EMAIL_PREFERENCES_UPDATED'
+  | 'PROFILE.PASSWORD_UPDATED'
+  | 'PROFILE.PASSWORD_UPDATE_ERROR'
+  | 'PROFILE.EMAIL_UPDATED'
+  | 'PROFILE.EMAIL_UPDATE_ERROR'
   | 'MANUSCRIPT.SUBMIT_SUCCESS'
   | 'MANUSCRIPT.SUBMIT_ERROR'
   | 'MANUSCRIPT.UPDATE_SUCCESS'
