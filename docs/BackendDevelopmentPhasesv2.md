@@ -564,13 +564,9 @@ WITHDRAWN – Author retracts manuscript.
 ### 1. Authentication and Authorization
 
 JWT Token Rotation:
--Rotate JWTs regularly and keep a short-lived access token + long-lived refresh token system.
--Prevents token reuse if stolen.
--Django Implementation: Use djangorestframework-simplejwt with ROTATE_REFRESH_TOKENS=True.
 
 Password Security:
 -Use strong hashing algorithms (PBKDF2, Argon2).
--Enforce strong passwords with complexity rules.
 -Use Django’s built-in make_password and check_password.
 
 Role-Based Access Control (RBAC):

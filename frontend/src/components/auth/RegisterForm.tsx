@@ -26,8 +26,17 @@ const RegisterForm: React.FC = () => {
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 
-		if (formData.password.length < 6) {
+		// Enhanced password validation to match backend requirements
+		if (formData.password.length < 8) {
 			showError('FORM.WEAK_PASSWORD');
+			return;
+		}
+		if (formData.password === formData.password.toLowerCase() || formData.password === formData.password.toUpperCase()) {
+			showError('FORM.PASSWORD_MIXED_CASE');
+			return;
+		}
+		if (!/\d/.test(formData.password)) {
+			showError('FORM.PASSWORD_NO_DIGIT');
 			return;
 		}
 		if (formData.password !== formData.confirmPassword) {
@@ -40,6 +49,8 @@ const RegisterForm: React.FC = () => {
 		}
 
 		try {
+			console.log('Attempting registration with API:', `${API}/api/users/register/`);
+			
 			const reg = await fetch(`${API}/api/users/register/`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -52,12 +63,26 @@ const RegisterForm: React.FC = () => {
 					biography: '',
 				}),
 			});
+			
+			console.log('Registration response status:', reg.status);
+			
 			if (!reg.ok) {
-				const j = await reg.json().catch(() => ({} as any));
-				throw new Error((j && (j.email?.[0] || j.detail)) || (language === 'en' ? 'Registration failed' : 'Kayıt başarısız'));
+				const errorData = await reg.json().catch(() => ({}));
+				console.log('Registration error data:', errorData);
+				
+				// Handle specific error messages
+				if (errorData.email) {
+					throw new Error(errorData.email[0]);
+				} else if (errorData.password) {
+					throw new Error(errorData.password[0]);
+				} else if (errorData.detail) {
+					throw new Error(errorData.detail);
+				} else {
+					throw new Error(language === 'en' ? 'Registration failed' : 'Kayıt başarısız');
+				}
 			}
 
-			const tok = await fetch(`${API}/api/users/token/`, {
+			const tok = await fetch(`${API}/api/token/`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ username: formData.email, password: formData.password }),
@@ -80,6 +105,7 @@ const RegisterForm: React.FC = () => {
 			showSuccess('AUTH.REGISTER_SUCCESS');
 			router.push('/dashboard');
 		} catch (err: any) {
+			console.error('Registration error:', err);
 			showError('AUTH.REGISTER_ERROR');
 		}
 	};

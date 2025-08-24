@@ -151,4 +151,6 @@ Create a new dashboard. In this dashboard, every user role might see different o
 4) Can see all the reviewers decide individually
 5) Can see their tasks if assigned any (like editor of a journal, reviewer of a paper)
 6) Can see total published manuscript number and total review
-7) 
+7) Can change its password or email
+8) Can access e mail preferences (So there must be an e-mail preferences page)
+9) 

@@ -133,8 +133,16 @@ export const NOTIFICATIONS = {
       tr: 'Şifreler eşleşmiyor.'
     },
     WEAK_PASSWORD: {
-      en: 'Password is too weak. Please use a stronger password.',
-      tr: 'Şifre çok zayıf. Lütfen daha güçlü bir şifre kullanın.'
+      en: 'Password must be at least 8 characters long.',
+      tr: 'Şifre en az 8 karakter uzunluğunda olmalıdır.'
+    },
+    PASSWORD_MIXED_CASE: {
+      en: 'Password must include both upper and lower case letters.',
+      tr: 'Şifre hem büyük hem küçük harf içermelidir.'
+    },
+    PASSWORD_NO_DIGIT: {
+      en: 'Password must include at least one digit.',
+      tr: 'Şifre en az bir rakam içermelidir.'
     }
   },
 
@@ -208,6 +216,8 @@ export type NotificationKey =
   | 'FORM.INVALID_EMAIL'
   | 'FORM.PASSWORD_MISMATCH'
   | 'FORM.WEAK_PASSWORD'
+  | 'FORM.PASSWORD_MIXED_CASE'
+  | 'FORM.PASSWORD_NO_DIGIT'
   | 'SUBMISSION.SUBMIT_SUCCESS'
   | 'SUBMISSION.SUBMIT_ERROR'
   | 'SUBMISSION.VALIDATION_ERROR';

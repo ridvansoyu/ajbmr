@@ -29,7 +29,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose }) => {
     
     try {
       console.log('🔄 Making token request...');
-      const resp = await fetch(`${API}/api/users/token/`, {
+      		const resp = await fetch(`${API}/api/token/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: formData.email, password: formData.password }),
